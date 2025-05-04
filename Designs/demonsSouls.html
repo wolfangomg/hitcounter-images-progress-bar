@@ -1,0 +1,285 @@
+﻿<!DOCTYPE html>
+<html>
+	<head>
+		<title>Hitcounter GUI</title>
+		<link
+			rel="stylesheet"
+			href="demonssouls.css" />
+		<script
+			type="text/javascript"
+			src="javascript.js"></script>
+	</head>
+	<body>
+		<iframe style="display: none"></iframe>
+		<div>
+			<div class="progress-wrapper">
+				<div
+					class="split-image"
+					id="split-image">
+					<img
+						id="current-image"
+						class="current-image"
+						src="./images/placeholder.jpg" />
+				</div>
+
+				<!-- Caption movido debajo de la imagen -->
+				<div
+					class="image-caption"
+					id="image-caption">
+					<div class="caption-progress-container">
+						<div
+							class="caption-progress-bar"
+							id="caption-progress-bar"></div>
+					</div>
+					<div class="caption-stats">
+						<div
+							class="caption-split-name"
+							id="caption-split-name">
+							DIOS DRAGON
+						</div>
+					</div>
+				</div>
+
+				<div
+					class="progress-metrics"
+					style="display: none">
+					<div
+						class="circle-progress"
+						id="circle-progress"></div>
+					<div class="progress-container">
+						<div
+							class="progress-bar"
+							id="progress-bar"></div>
+						<div
+							class="progress-marker"
+							id="progress-marker">
+							<div class="progress-marker-text"></div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div
+			id="wrapper"
+			class="wrapper">
+			<div class="ds-separator">
+				<div id="ds-separator"></div>
+			</div>
+			<div class="total-hits-container">
+				<div
+					class="total-hits"
+					id="total-hits">
+					0 HITS | PB: 0
+				</div>
+			</div>
+			<div class="splits-summary">
+				<ul
+					class="splits-list"
+					id="splits-list"></ul>
+			</div>
+		</div>
+		<script language="javascript">
+			var tbl = document.getElementById('table');
+			var current_split_time = 0;
+			var current_split_time_pb = 0;
+			var total_time_current = 0;
+			var total_time_pb = 0;
+			var is_timer_paused = false;
+
+			function ShowHelpText(instructions) {
+				tbl.innerHTML =
+					'<tr><td class="major dark">' + instructions + '</td></tr>';
+			}
+
+			function updateSplitImage(
+				currentSplitIndex,
+				splitName,
+				totalHits,
+				pbHits,
+				percentage,
+				hasHits,
+				isPastFifty
+			) {
+				const currentImage = document.getElementById('current-image');
+				const splitImageContainer = document.getElementById('split-image');
+				const captionElement = document.getElementById('image-caption');
+				const captionSplitName = document.getElementById('caption-split-name');
+				const captionProgressBar = document.getElementById(
+					'caption-progress-bar'
+				);
+				const oldSrc = currentImage.src;
+				const newSrc = './images/' + currentSplitIndex + '.jpg';
+
+				if (oldSrc !== newSrc) {
+					currentImage.style.opacity = '0';
+					const img = new Image();
+					img.onload = function () {
+						setTimeout(() => {
+							currentImage.src = newSrc;
+							currentImage.style.opacity = '1';
+						}, 200);
+					};
+
+					img.onerror = function () {
+						setTimeout(() => {
+							currentImage.src = './images/placeholder.jpg';
+							currentImage.style.opacity = '1';
+						}, 200);
+					};
+
+					img.src = newSrc;
+				}
+
+				if (captionSplitName) {
+					captionSplitName.textContent = splitName.replaceAll('&nbsp;', ' ');
+				}
+
+				if (captionProgressBar) {
+					captionProgressBar.style.width = percentage + '%';
+				}
+
+				if (hasHits) {
+					captionElement.classList.add('hit-warning');
+				} else {
+					captionElement.classList.remove('hit-warning');
+				}
+
+				if (isPastFifty) {
+					captionElement.classList.add('past-fifty');
+				} else {
+					captionElement.classList.remove('past-fifty');
+				}
+			}
+
+			function DoVisualUpdate(d) {
+				var totalHits = 0;
+				var pbHits = d.list.reduce(
+					(total, curr) => (total += parseInt(curr[2])),
+					0
+				);
+
+				var totalHits = d.list.reduce(
+					(total, curr) => (total += parseInt(curr[1])),
+					0
+				);
+				var dpbIndex = d.list.findIndex((v) => parseInt(v[2]) > 0);
+				var splits = d.list;
+				var currentSplitIndex = d.split_active;
+
+				var currentSplitName = splits[currentSplitIndex]
+					? splits[currentSplitIndex][0]
+					: totalHits === 0
+					? 'NO HIT RUN'
+					: 'Keep working babe';
+
+				const cc = currentSplitIndex;
+				const percentage = Math.min((cc / d.list.length) * 100, 100).toFixed();
+				const hasHits = totalHits > 0;
+				const isPastFifty = totalHits === 0 && parseInt(percentage) > 50;
+
+				updateSplitImage(
+					currentSplitIndex,
+					currentSplitName,
+					totalHits,
+					pbHits,
+					percentage,
+					hasHits,
+					isPastFifty
+				);
+
+				document.getElementById('circle-progress').innerHTML = percentage + '%';
+				document.getElementById('progress-bar').style.width = percentage + '%';
+				document.getElementById('ds-separator').innerHTML = percentage + '%';
+
+				const totalHitsElement = document.getElementById('total-hits');
+				if (totalHitsElement) {
+					totalHitsElement.textContent =
+						totalHits > 0
+							? totalHits + ' HITS | PB: ' + pbHits
+							: '0 HITS | PB: 0';
+
+					if (hasHits) {
+						totalHitsElement.classList.add('has-hits');
+					} else {
+						totalHitsElement.classList.remove('has-hits');
+					}
+				}
+
+				// var wrapper = document.getElementById('wrapper');
+				// if (totalHits > 0) {
+				// 	wrapper.style.display = 'block';
+				// } else {
+				// 	wrapper.style.display = 'none';
+				// }
+
+				UpdateSplitsList(d, totalHits);
+			}
+
+			function UpdateSplitsList(d, totalHits) {
+				var splitsList = document.getElementById('splits-list');
+				splitsList.innerHTML = '';
+
+				d.list
+					.filter((f) => parseInt(f[1]) > 0)
+					.forEach((split, index) => {
+						const splitName = split[0];
+						const hits = parseInt(split[1]);
+						const pbHits = parseInt(split[2]);
+
+						const listItem = document.createElement('li');
+						listItem.className = 'split-item';
+
+						if (index === d.split_active) {
+							listItem.classList.add('active');
+						}
+
+						const nameSpan = document.createElement('span');
+						nameSpan.className = 'split-item-name';
+						nameSpan.textContent = splitName.replaceAll('&nbsp;', ' ');
+
+						const hitsSpan = document.createElement('span');
+						hitsSpan.className = 'split-item-hits';
+						hitsSpan.textContent =
+							hits + (pbHits > 0 ? ' | PB: ' + pbHits : '');
+
+						listItem.appendChild(nameSpan);
+						listItem.appendChild(hitsSpan);
+						splitsList.appendChild(listItem);
+					});
+			}
+
+			function OnOffsetTimerTick(offset) {
+				if (!is_timer_paused) {
+					var diff;
+
+					span = document.getElementById('time_split_current');
+					if (span != undefined)
+						span.innerHTML = IntToTimeStr(current_split_time + offset, false);
+					span = document.getElementById('time_split_diff');
+					if (span != undefined) {
+						diff = current_split_time + offset - current_split_time_pb;
+						span.innerHTML = DiffToTimeStr(diff, true);
+						span.className = 0 <= diff ? 'worse' : 'better';
+					}
+					span = document.getElementById('time_total_current');
+					if (span != undefined)
+						span.innerHTML = IntToTimeStr(total_time_current + offset, true);
+					span = document.getElementById('time_total_diff');
+					if (span != undefined) {
+						diff = total_time_current + offset - total_time_pb;
+						span.innerHTML = DiffToTimeStr(diff, true);
+						span.className = 0 <= diff ? 'worse' : 'better';
+					}
+					span = document.getElementById('time_total_footer');
+					if (span != undefined)
+						span.innerHTML = IntToTimeStr(total_time_current + offset, true);
+				}
+			}
+
+			function getCurrentImage(n) {
+				return `<img src="./images/${n}.jpg" height="21px">`;
+			}
+			Start(OnOffsetTimerTick);
+		</script>
+	</body>
+</html>
