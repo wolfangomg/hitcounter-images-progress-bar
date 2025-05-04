@@ -11,3 +11,5 @@ This a customized files to have hitcountermanager with images, progress bar and 
 - Recommended size for images 350px x 160px
 - Recommend to have a placeholder.jpg in case you made a mistake with image extension or number (based on the split -1)
 
+![si](https://github.com/wolfangomg/hitcounter-images-progress-bar/blob/main/faq/1.png)
+![no](https://github.com/wolfangomg/hitcounter-images-progress-bar/blob/main/faq/2.png)
