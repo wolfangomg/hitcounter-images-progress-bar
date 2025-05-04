@@ -1,6 +1,12 @@
+[![BlueSky](https://img.shields.io/badge/BlueSky-Follow-blue)](https://bsky.app/profile/wolfan.bsky.social) [![YouTube](https://img.shields.io/badge/YouTube-Subscribe-red)](https://www.youtube.com/@wolfangomg) [![Twitch](https://img.shields.io/badge/Twitch-Follow-purple)](https://www.twitch.tv/wolfang3/) [![Instagram](https://img.shields.io/badge/Instagram-Follow-E4405F)](https://www.instagram.com/wolfangomg/)
+
 # hitcounter-images-progress-bar
 
 This a customized files to have hitcountermanager with images, progress bar and only tracking hit at a table
+
+## Example
+
+![sii](https://github.com/wolfangomg/hitcounter-images-progress-bar/blob/main/faq/3.png)
 
 ## Setup
 
@@ -13,3 +19,6 @@ This a customized files to have hitcountermanager with images, progress bar and 
 
 ![si](https://github.com/wolfangomg/hitcounter-images-progress-bar/blob/main/faq/1.png)
 ![no](https://github.com/wolfangomg/hitcounter-images-progress-bar/blob/main/faq/2.png)
+
+
+🔗 **Encuéntrame en:** [🎬 YouTube](https://www.youtube.com/@wolfangomg) | [🎮 Twitch](https://www.twitch.tv/wolfang3/) | [📸 Instagram](https://www.instagram.com/wolfangomg/) | [🦋 BlueSky](https://bsky.app/profile/wolfan.bsky.social)
